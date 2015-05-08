@@ -117,15 +117,27 @@ aliases.update({
 page_template = """
 {% extends "templates/page.html" %}
 
-{% block header_buttons %}
-{{super()}}
-
-<a href='{{hub_control_panel_url}}'
- class='btn btn-default btn-sm navbar-btn pull-right'
- style='margin-right: 4px; margin-left: 2px;'
->
-Control Panel</a>
-{% endblock %}
+{% block header %}
+  <div id="menubar-container" class="container">
+    <div id="menubar">
+      <div id="menus" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <img src="/static/custom/img/logos/KyperLogo_DarkBackground_small_margin.svg" alt="Kyper Data Technologies title=Kyper Data Technology">
+          </div>
+          <ul class="nav navbar-nav">
+            <li>
+              <a href="http://kyper-static.s3-website-us-east-1.amazonaws.com/landing/news.html">BROWSER</a>
+            </li>
+            <li class="active header-analytics">
+              <a href="#">ANALYTICS</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
 """
 
 class SingleUserNotebookApp(NotebookApp):
