@@ -9,9 +9,6 @@ dist
 /jupyterhub_config.py
 jupyterhub_cookie_secret
 jupyterhub.sqlite
-share/jupyter/hub/static/components
-share/jupyter/hub/static/css/style.min.css
-share/jupyter/hub/static/css/style.min.css.map
 *.egg-info
 MANIFEST
 .coverage
