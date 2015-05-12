@@ -27,12 +27,12 @@
 <head>
     <meta charset="utf-8">
 
-    <title>{% block title %}Jupyter Hub{% endblock %}</title>
+    <title>{% block title %}Kyper Data Technologies{% endblock %}</title>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     {% block stylesheet %}
-    <link rel="stylesheet" href="{{ static_url("css/style.min.css") }}" type="text/css"/>
+    <link rel="stylesheet" href="{{ static_url("css/custom.css") }}" type="text/css"/>
     {% endblock %}
     <script src="{{static_url("components/requirejs/require.js") }}" type="text/javascript" charset="utf-8"></script>
     <script>
@@ -82,7 +82,6 @@
 
 <div id="header" class="navbar navbar-static-top">
   <div class="container">
-  <span id="jupyterhub-logo" class="pull-left"><a href="{{base_url}}"><img src='{{static_url("images/jupyter.png") }}' alt='JupyterHub' class='jpy-logo' title='Home'/></a></span>
 
   {% block login_widget %}
 
@@ -97,6 +96,17 @@
   {% endblock %}
 
   {% block header %}
+  <div id="menubar-container" class="container">
+    <div id="menubar">
+      <div id="menus" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <img src="static/images/KyperLogo_DarkBackground_small_margin.svg" alt="Kyper Data Technologies title=Kyper Data Technology">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   {% endblock %}
   </div>
 </div>
