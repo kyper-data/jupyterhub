@@ -5,7 +5,11 @@
 # Distributed under the terms of the Modified BSD License.
 
 import os
-from urllib.parse import quote
+try:
+    from urllib.parse import quote
+except ImportError:
+    # PY2 Compat
+    from urllib import quote
 
 import requests
 from jinja2 import ChoiceLoader, FunctionLoader
@@ -88,7 +92,7 @@ class JupyterHubLoginHandler(LoginHandler):
             if not auth_data:
                 # treat invalid token the same as no token
                 return None
-            user = auth_data['user']
+            user = auth_data['name']
             if user == my_user:
                 self._cached_user = user
                 return user
@@ -138,6 +142,7 @@ class SingleUserNotebookApp(NotebookApp):
     hub_api_url = Unicode(config=True)
     aliases = aliases
     open_browser = False
+    trust_xheaders = True
     login_handler_class = JupyterHubLoginHandler
     logout_handler_class = JupyterHubLogoutHandler
 
@@ -176,7 +181,7 @@ class SingleUserNotebookApp(NotebookApp):
                 self._clear_cookie_cache,
                 self.cookie_cache_lifetime * 1e3,
             ).start()
-        super().start()
+        super(SingleUserNotebookApp, self).start()
     
     def init_webapp(self):
         # load the hub related settings into the tornado settings dict

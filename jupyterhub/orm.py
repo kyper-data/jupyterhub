@@ -8,6 +8,7 @@ import base64
 import errno
 import json
 import socket
+from urllib.parse import quote
 
 from tornado import gen
 from tornado.log import app_log
@@ -146,7 +147,7 @@ class Proxy(Base):
             )
         else:
             return "<%s [unconfigured]>" % self.__class__.__name__
-
+    
     def api_request(self, path, method='GET', body=None, client=None):
         """Make an authenticated API request of the proxy"""
         client = client or AsyncHTTPClient()
@@ -305,6 +306,11 @@ class User(Base):
         return base64.b64encode(bytes(self.name, "utf8")).decode("utf8").strip("=")
 
     @property
+    def escaped_name(self):
+        """My name, escaped for use in URLs, cookies, etc."""
+        return quote(self.name, safe='@')
+    
+    @property
     def running(self):
         """property for whether a user has a running server"""
         if self.spawner is None:
@@ -338,9 +344,15 @@ class User(Base):
         db = inspect(self).session
         if hub is None:
             hub = db.query(Hub).first()
+        
         self.server = Server(
+<<<<<<< HEAD
             cookie_name='%s-%s' % (hub.server.cookie_name, self.b64_name),
             base_url=url_path_join(base_url, 'user', self.b64_name),
+=======
+            cookie_name='%s-%s' % (hub.server.cookie_name, quote(self.name, safe='')),
+            base_url=url_path_join(base_url, 'user', self.escaped_name),
+>>>>>>> 087a93f9ef018d6c5766579a2d5f12a765abec5c
         )
         db.add(self.server)
         db.commit()

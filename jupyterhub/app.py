@@ -201,7 +201,15 @@ class JupyterHub(Application):
     data_files_path = Unicode(DATA_FILES_PATH, config=True,
         help="The location of jupyterhub data files (e.g. /usr/local/share/jupyter/hub)"
     )
-    
+
+    template_paths = List(
+        config=True,
+        help="Paths to search for jinja templates.",
+    )
+
+    def _template_paths_default(self):
+        return [os.path.join(self.data_files_path, 'templates')]
+
     ssl_key = Unicode('', config=True,
         help="""Path to SSL key file for the public facing interface of the proxy
         
@@ -792,9 +800,8 @@ class JupyterHub(Application):
     def init_tornado_settings(self):
         """Set up the tornado settings dict."""
         base_url = self.hub.server.base_url
-        template_path = os.path.join(self.data_files_path, 'templates'),
         jinja_env = Environment(
-            loader=FileSystemLoader(template_path),
+            loader=FileSystemLoader(self.template_paths),
             **self.jinja_environment_options
         )
         
@@ -828,7 +835,7 @@ class JupyterHub(Application):
             static_path=os.path.join(self.data_files_path, 'static'),
             static_url_prefix=url_path_join(self.hub.server.base_url, 'static/'),
             static_handler_class=CacheControlStaticFilesHandler,
-            template_path=template_path,
+            template_path=self.template_paths,
             jinja2_env=jinja_env,
             version_hash=version_hash,
         )
@@ -982,6 +989,16 @@ class JupyterHub(Application):
             loop.stop()
             return
         
+        # start the webserver
+        self.http_server = tornado.httpserver.HTTPServer(self.tornado_application, xheaders=True)
+        try:
+            self.http_server.listen(self.hub_port, address=self.hub_ip)
+        except Exception:
+            self.log.error("Failed to bind hub to %s", self.hub.server.bind_url)
+            raise
+        else:
+            self.log.info("Hub API listening on %s", self.hub.server.bind_url)
+        
         # start the proxy
         try:
             yield self.start_proxy()
@@ -1003,16 +1020,7 @@ class JupyterHub(Application):
             pc = PeriodicCallback(self.update_last_activity, 1e3 * self.last_activity_interval)
             pc.start()
 
-        # start the webserver
-        self.http_server = tornado.httpserver.HTTPServer(self.tornado_application, xheaders=True)
-        try:
-            self.http_server.listen(self.hub_port, address=self.hub_ip)
-        except Exception:
-            self.log.error("Failed to bind hub to %s" % self.hub.server.bind_url)
-            raise
-        else:
-            self.log.info("Hub API listening on %s" % self.hub.server.bind_url)
-        
+        self.log.info("JupyterHub is now running at %s", self.proxy.public_server.url)
         # register cleanup on both TERM and INT
         atexit.register(self.atexit)
         self.init_signal()
