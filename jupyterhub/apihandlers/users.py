@@ -11,56 +11,44 @@ from .. import orm
 from ..utils import admin_only
 from .base import APIHandler
 
+class BaseUserHandler(APIHandler):
+    
+    def user_model(self, user):
+        model = {
+            'name': user.name,
+            'admin': user.admin,
+            'server': user.server.base_url if user.running else None,
+            'pending': None,
+            'last_activity': user.last_activity.isoformat(),
+        }
+        if user.spawn_pending:
+            model['pending'] = 'spawn'
+        elif user.stop_pending:
+            model['pending'] = 'stop'
+        return model
+    
+    _model_types = {
+        'name': str,
+        'admin': bool,
+    }
+    
+    def _check_user_model(self, model):
+        if not isinstance(model, dict):
+            raise web.HTTPError(400, "Invalid JSON data: %r" % model)
+        if not set(model).issubset(set(self._model_types)):
+            raise web.HTTPError(400, "Invalid JSON keys: %r" % model)
+        for key, value in model.items():
+            if not isinstance(value, self._model_types[key]):
+                raise web.HTTPError(400, "user.%s must be %s, not: %r" % (
+                    key, self._model_types[key], type(value)
+                ))
 
-class UserListAPIHandler(APIHandler):
+class UserListAPIHandler(BaseUserHandler):
     @admin_only
     def get(self):
         users = self.db.query(orm.User)
         data = [ self.user_model(u) for u in users ]
         self.write(json.dumps(data))
-    
-    @admin_only
-    @gen.coroutine
-    def post(self):
-        data = self.get_json_body()
-        if not data or not isinstance(data, dict) or not data.get('usernames'):
-            raise web.HTTPError(400, "Must specify at least one user to create")
-        
-        usernames = data.pop('usernames')
-        self._check_user_model(data)
-        # admin is set for all users
-        # to create admin and non-admin users requires at least two API requests
-        admin = data.get('admin', False)
-        
-        to_create = []
-        for name in usernames:
-            user = self.find_user(name)
-            if user is not None:
-                self.log.warn("User %s already exists" % name)
-            else:
-                to_create.append(name)
-        
-        if not to_create:
-            raise web.HTTPError(400, "All %i users already exist" % len(usernames))
-        
-        created = []
-        for name in to_create:
-            user = self.user_from_username(name)
-            if admin:
-                user.admin = True
-                self.db.commit()
-            try:
-                yield gen.maybe_future(self.authenticator.add_user(user))
-            except Exception:
-                self.log.error("Failed to create user: %s" % name, exc_info=True)
-                self.db.delete(user)
-                self.db.commit()
-                raise web.HTTPError(400, "Failed to create user: %s" % name)
-            else:
-                created.append(user)
-        
-        self.write(json.dumps([ self.user_model(u) for u in created ]))
-        self.set_status(201)
 
 
 def admin_or_self(method):
@@ -78,7 +66,7 @@ def admin_or_self(method):
         return method(self, name)
     return m
 
-class UserAPIHandler(APIHandler):
+class UserAPIHandler(BaseUserHandler):
     
     @admin_or_self
     def get(self, name):
@@ -147,7 +135,7 @@ class UserAPIHandler(APIHandler):
         self.write(json.dumps(self.user_model(user)))
 
 
-class UserServerAPIHandler(APIHandler):
+class UserServerAPIHandler(BaseUserHandler):
     @gen.coroutine
     @admin_or_self
     def post(self, name):
@@ -177,7 +165,7 @@ class UserServerAPIHandler(APIHandler):
         status = 202 if user.stop_pending else 204
         self.set_status(status)
 
-class UserAdminAccessAPIHandler(APIHandler):
+class UserAdminAccessAPIHandler(BaseUserHandler):
     """Grant admins access to single-user servers
     
     This handler sets the necessary cookie for an admin to login to a single-user server.

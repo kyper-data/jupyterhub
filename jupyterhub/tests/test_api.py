@@ -60,13 +60,11 @@ def api_request(app, *api_path, **kwargs):
 
     if 'Authorization' not in headers:
         headers.update(auth_header(app.db, 'admin'))
-
+    
     url = ujoin(base_url, 'api', *api_path)
     method = kwargs.pop('method', 'get')
     f = getattr(requests, method)
-    resp = f(url, **kwargs)
-    assert resp.headers['Content-Security-Policy'] == "frame-ancestors 'self'"
-    return resp
+    return f(url, **kwargs)
 
 def test_auth_api(app):
     db = app.db
@@ -81,7 +79,7 @@ def test_auth_api(app):
     r = api_request(app, 'authorizations/token', api_token)
     assert r.status_code == 200
     reply = r.json()
-    assert reply['name'] == user.name
+    assert reply['user'] == user.name
     
     # check fail
     r = api_request(app, 'authorizations/token', api_token,
@@ -131,82 +129,6 @@ def test_add_user(app):
     assert user is not None
     assert user.name == name
     assert not user.admin
-
-
-def test_get_user(app):
-    name = 'user'
-    r = api_request(app, 'users', name)
-    assert r.status_code == 200
-    user = r.json()
-    user.pop('last_activity')
-    assert user == {
-        'name': name,
-        'admin': False,
-        'server': None,
-        'pending': None,
-    }
-
-
-def test_add_multi_user_bad(app):
-    r = api_request(app, 'users', method='post')
-    assert r.status_code == 400
-    r = api_request(app, 'users', method='post', data='{}')
-    assert r.status_code == 400
-    r = api_request(app, 'users', method='post', data='[]')
-    assert r.status_code == 400
-
-def test_add_multi_user(app):
-    db = app.db
-    names = ['a', 'b']
-    r = api_request(app, 'users', method='post',
-        data=json.dumps({'usernames': names}),
-    )
-    assert r.status_code == 201
-    reply = r.json()
-    r_names = [ user['name'] for user in reply ]
-    assert names == r_names
-    
-    for name in names:
-        user = find_user(db, name)
-        assert user is not None
-        assert user.name == name
-        assert not user.admin
-    
-    # try to create the same users again
-    r = api_request(app, 'users', method='post',
-        data=json.dumps({'usernames': names}),
-    )
-    assert r.status_code == 400
-    
-    names = ['a', 'b', 'ab']
-    
-    # try to create the same users again
-    r = api_request(app, 'users', method='post',
-        data=json.dumps({'usernames': names}),
-    )
-    assert r.status_code == 201
-    reply = r.json()
-    r_names = [ user['name'] for user in reply ]
-    assert r_names == ['ab']
-
-
-def test_add_multi_user_admin(app):
-    db = app.db
-    names = ['c', 'd']
-    r = api_request(app, 'users', method='post',
-        data=json.dumps({'usernames': names, 'admin': True}),
-    )
-    assert r.status_code == 201
-    reply = r.json()
-    r_names = [ user['name'] for user in reply ]
-    assert names == r_names
-    
-    for name in names:
-        user = find_user(db, name)
-        assert user is not None
-        assert user.name == name
-        assert user.admin
-
 
 def test_add_user_bad(app):
     db = app.db

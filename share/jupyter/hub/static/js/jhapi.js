@@ -72,16 +72,18 @@ define(['jquery', 'utils'], function ($, utils) {
         );
     };
     
-    JHAPI.prototype.add_users = function (usernames, userinfo, options) {
+    JHAPI.prototype.add_user = function (user, userinfo, options) {
         options = options || {};
-        var data = update(userinfo, {usernames: usernames});
         options = update(options, {
             type: 'POST',
             dataType: null,
-            data: JSON.stringify(data)
+            data: JSON.stringify(userinfo)
         });
         
-        this.api_request('users', options);
+        this.api_request(
+            utils.url_path_join('users', user),
+            options
+        );
     };
     
     JHAPI.prototype.edit_user = function (user, userinfo, options) {

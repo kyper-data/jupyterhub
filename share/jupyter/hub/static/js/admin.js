@@ -42,7 +42,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function ($, bs, mo
     $("th").map(function (i, th) {
         th = $(th);
         var col = th.data('sort');
-        if (!col || col.length === 0) {
+        if (!col || col.length == 0) {
             return;
         }
         var order = th.find('i').hasClass('fa-sort-desc') ? 'asc':'desc';
@@ -50,7 +50,7 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function ($, bs, mo
             function () {
                 resort(col, order);
             }
-        );
+        )
     });
     
     $(".time-col").map(function (i, el) {
@@ -161,17 +161,9 @@ require(["jquery", "bootstrap", "moment", "jhapi", "utils"], function ($, bs, mo
 
     $("#add-user-dialog").find(".save-button").click(function () {
         var dialog = $("#add-user-dialog");
-        var lines = dialog.find(".username-input").val().split('\n');
+        var username = dialog.find(".username-input").val();
         var admin = dialog.find(".admin-checkbox").prop("checked");
-        var usernames = [];
-        lines.map(function (line) {
-            var username = line.trim();
-            if (username.length) {
-                usernames.push(username);
-            }
-        });
-        
-        api.add_users(usernames, {admin: admin}, {
+        api.add_user(username, {admin: admin}, {
             success: function () {
                 window.location.reload();
             }
