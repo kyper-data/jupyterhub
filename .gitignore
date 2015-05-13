@@ -13,4 +13,4 @@ jupyterhub.sqlite
 MANIFEST
 .coverage
 htmlcov
-
+npm-debug.log
