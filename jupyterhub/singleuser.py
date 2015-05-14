@@ -225,7 +225,7 @@ page_template = """
       <div id="menus" class="navbar navbar-default" role="navigation">
         <div class="container-fluid">
           <div class="navbar-header">
-            <img src="{{static_url("static/custom/img/logos/KyperLogo_DarkBackground_small_margin.svg")}}" alt="Kyper Data Technologies title=Kyper Data Technology">
+            <img src="{{static_url("custom/img/logos/KyperLogo_DarkBackground_small_margin.svg")}}" alt="Kyper Data Technologies title=Kyper Data Technology">
           </div>
           <ul class="nav navbar-nav">
             <li>
