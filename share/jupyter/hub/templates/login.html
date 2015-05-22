@@ -78,6 +78,16 @@
       }
     </script>
 
+    <!-- Browser user-agent check -->
+    <script type="text/javascript">
+      var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+      var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+
+      if (!(is_firefox || is_chrome))
+        alert("Kyper works best on recent versions of Chrome or Firefox! If you experience difficulties, try using one of these supported browsers.");
+
+    </script>
+
     {% block meta %}
     {% endblock %}
 
@@ -87,7 +97,7 @@
 
 <noscript>
   <div id='noscript'>
-    Kyper Data Platform requires JavaScript.<br>
+    Kyper requires JavaScript.<br>
     Please enable it to proceed.
   </div>
 </noscript>
