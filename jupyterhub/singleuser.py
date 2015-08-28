@@ -121,7 +121,7 @@ page_template = """
 <head>
     <meta charset="utf-8">
 
-    <title>{% block title %}IPython Notebook{% endblock %}</title>
+    <title>{% block title %}Kyper Notebook{% endblock %}</title>
     {% block favicon %}<link rel="shortcut icon" type="image/x-icon" href="{{static_url("base/images/favicon.ico") }}">{% endblock %}
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="{{static_url("components/jquery-ui/themes/smoothness/jquery-ui.min.css") }}" type="text/css" />
@@ -193,7 +193,7 @@ page_template = """
 
 <noscript>
     <div id='noscript'>
-      IPython Notebook requires JavaScript.<br>
+      Kyper Notebook requires JavaScript.<br>
       Please enable it to proceed.
   </div>
 </noscript>
@@ -229,10 +229,16 @@ page_template = """
           </div>
           <ul class="nav navbar-nav">
             <li>
-              <a href="http://kyper-static.s3-website-us-east-1.amazonaws.com/landing/news.html">BROWSER</a>
+              <a href="http://www.kyper.com">HOME</a>
+            </li>
+            <li>
+              <a href="https://kyper.co/browse">BROWSE</a>
             </li>
             <li class="active header-analytics">
-              <a href="#">ANALYTICS</a>
+              <a href="#">ANALYZE</a>
+            </li>
+            <li>
+              <a href="https://kyper.co">LEARN</a>
             </li>
           </ul>
         </div>
