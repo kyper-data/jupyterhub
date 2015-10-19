@@ -227,7 +227,7 @@ page_template = """
           <div class="navbar-header">
             <img src="{{static_url("custom/img/logos/KyperLogo_DarkBackground_small_margin.svg")}}" alt="Kyper Data Technologies title=Kyper Data Technology">
           </div>
-          <ul class="nav navbar-nav">
+          <!--<ul class="nav navbar-nav">
             <li>
               <a href="http://www.kyper.com">HOME</a>
             </li>
@@ -239,6 +239,11 @@ page_template = """
             </li>
             <li>
               <a href="https://kyper.co">LEARN</a>
+            </li>
+          </ul>-->
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a href="/logout">LOGOUT</a>
             </li>
           </ul>
         </div>
